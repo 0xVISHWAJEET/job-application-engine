@@ -162,6 +162,21 @@ COMPANY_BOARDS = [
     ("LiveKit", "ashby", "livekit"),
     ("Mux", "ashby", "mux"),
     ("Cloudinary", "lever", "cloudinary"),
+    # Fintech/payments infra
+    ("Adyen", "greenhouse", "adyen"),
+    ("Wise", "greenhouse", "wise"),
+    ("Unit", "ashby", "unit"),
+    ("Mercury", "greenhouse", "mercury"),
+    ("Affirm", "greenhouse", "affirm"),
+    ("Bolt", "ashby", "bolt"),
+    # Cloud/network infra and security
+    ("Fastly", "greenhouse", "fastly"),
+    ("Netlify", "greenhouse", "netlify"),
+    ("Zscaler", "greenhouse", "zscaler"),
+    ("Netskope", "greenhouse", "netskope"),
+    # DevOps/cost-observability
+    ("Infracost", "ashby", "infracost"),
+    ("Checkly", "ashby", "checkly"),
 ]
 
 
