@@ -62,9 +62,9 @@ not filtered by country/region, since the candidate is open to relocating
 | GitJobs | server-rendered job cards with `data-job-*` attributes | CNCF/Linux Foundation's open-source board; `jobs.cncf.io` and `jobs.linuxfoundation.org` both redirect here - an earlier pass wrongly assumed this was JS-only, corrected after a direct recheck |
 | JustJoinIT | server-rendered category pages | major Polish/European tech board; `devops`/`ai`/`security`/`go` categories |
 | LinkedIn | public/guest job-search page | 16 distinct keyword searches (DevOps/SRE/Blockchain/AI/Cryptography variants) - each returns up to ~60 results; pagination past that (`start=25+`) redirects to `start=0` without a login, confirmed via the 303 response, so more keywords is the only way to get more without crossing into logged-in automation |
-| 31 company boards | Greenhouse/Lever/Ashby public APIs | Anthropic, OpenAI, Cohere, Scale AI, Stability AI, DeepMind, Together AI, Mistral, Coinbase, Consensys, NEAR Foundation, Kraken, Circle, Solana Labs, Cloudflare, Stripe, Databricks, GitLab, Snowflake, Elastic, MongoDB, PagerDuty, New Relic, Datadog, Vercel, Alchemy, Confluent, xAI, ElevenLabs, Replit, Render - these are the actual ATS vendors behind most companies' JS-rendered `/careers` pages, found by direct probing (`boards-api.greenhouse.io`, `api.lever.co`, `api.ashbyhq.com`), not by scraping the page itself |
+| 120 company boards | Greenhouse/Lever/Ashby public APIs | AI labs, ML infra, data infra, dev-tools, observability, security, blockchain/crypto, fintech, and large general-tech companies - the full list is `COMPANY_BOARDS` in `scripts/ats_boards.py`. These are the actual ATS vendors behind most companies' JS-rendered `/careers` pages, found by direct probing (`boards-api.greenhouse.io`, `api.lever.co`, `api.ashbyhq.com`) rather than scraping the page itself - this is an ongoing search (started at 19, then 31, now 120), so the count keeps growing |
 
-That's ~40 real sources total, spanning every listed AI/blockchain
+That's ~130 real sources total, spanning every listed AI/blockchain
 company's actual career-page backend plus every general-purpose board that
 turned out to be reachable - not scoped to any one country.
 

@@ -128,6 +128,40 @@ COMPANY_BOARDS = [
     ("Lyft", "greenhouse", "lyft"),
     ("Reddit", "greenhouse", "reddit"),
     ("Helium", "greenhouse", "helium"),
+    # More AI companies
+    ("Inflection AI", "greenhouse", "inflectionai"),
+    ("Hume AI", "greenhouse", "hume"),
+    ("Cartesia", "ashby", "cartesia"),
+    ("Deepgram", "ashby", "deepgram"),
+    ("AssemblyAI", "greenhouse", "assemblyai"),
+    ("Imbue", "greenhouse", "imbue"),
+    ("Cresta", "greenhouse", "cresta"),
+    ("Sierra", "ashby", "sierra"),
+    ("Decagon", "ashby", "decagon"),
+    ("Poolside", "ashby", "poolside"),
+    # More blockchain/crypto
+    ("Syndica", "ashby", "syndica"),
+    ("Helius", "ashby", "helius"),
+    ("LayerZero Labs", "greenhouse", "layerzerolabs"),
+    ("Ethena Labs", "lever", "ethenalabs"),
+    # Cloud-native/observability
+    ("Nirmata", "greenhouse", "nirmata"),
+    ("Grafana Labs", "greenhouse", "grafanalabs"),
+    ("SigNoz", "ashby", "signoz"),
+    # Web3 analytics/infra
+    ("Tenderly", "ashby", "tenderly"),
+    ("Nansen", "greenhouse", "nansen"),
+    ("Messari", "greenhouse", "messari"),
+    ("Figment", "greenhouse", "figment"),
+    # AI/ML platform
+    ("Anyscale", "ashby", "anyscale"),
+    ("Cerebras", "ashby", "cerebras"),
+    ("CoreWeave", "greenhouse", "coreweave"),
+    # Devtools/media infra
+    ("StackBlitz", "greenhouse", "stackblitz"),
+    ("LiveKit", "ashby", "livekit"),
+    ("Mux", "ashby", "mux"),
+    ("Cloudinary", "lever", "cloudinary"),
 ]
 
 
