@@ -1,18 +1,26 @@
 """
-Local dashboard for jobs.db - browse every qualifying job (score >= 0.80,
-posted within the last 30 days) in one page: portal, company, role, match
-score/reasoning, a link to the tailored resume PDF, the apply URL, and the
-predicted Q&A for that posting. Meant to be the one place you look at while
-actually applying, not something published or shared - it's served on
-localhost only and reads local files (tailored PDFs) directly off disk.
+Dashboard for jobs.db - browse every qualifying job (score >= 0.80, posted
+within the last 30 days) in one page: portal, company, role, match score/
+reasoning, a link to the tailored resume PDF, the apply URL, and the
+predicted Q&A for that posting. This is personal data (real resume/contact
+info, Q&A answers about visa status etc.) - when reverse-proxied publicly
+(see gateway-live-aspireztech/Caddyfile's /vishujob route), it's gated
+behind HTTP basic auth, never left open.
 
 Usage:
     python3 scripts/webapp.py [port]   # default port 8095
     -> open http://localhost:8095 in a browser
+
+Set BASE_PATH (e.g. "/vishujob") when this is reverse-proxied under a path
+prefix that the proxy strips before forwarding (Caddy's handle_path does
+this) - every link/fetch URL this page generates needs that prefix added
+back in, since the browser resolves root-relative hrefs against the full
+domain, not against whatever prefix stripping happened upstream.
 """
 
 import html
 import json
+import os
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -23,6 +31,7 @@ from jobs_db import JobsDB  # noqa: E402
 
 DEFAULT_PORT = 8095
 MIN_SCORE = 0.80
+BASE_PATH = os.environ.get("BASE_PATH", "").rstrip("/")
 
 STYLE = """
 <style>
@@ -83,7 +92,7 @@ def render_index(db: JobsDB) -> bytes:
         rows.append(f"""
         <tr data-portal="{html.escape(j['portal'] or '')}" data-role="{html.escape(j['role_category'] or '')}">
           <td class="score {score_cls}">{j['match_score']:.2f}</td>
-          <td><a href="/job/{j['id']}">{html.escape(j['title'])}</a></td>
+          <td><a href="{BASE_PATH}/job/{j['id']}">{html.escape(j['title'])}</a></td>
           <td>{html.escape(j['company'] or '')}</td>
           <td><span class="badge">{html.escape(j['portal'] or '')}</span></td>
           <td><span class="badge">{html.escape(j['role_category'] or '')}</span></td>
@@ -154,7 +163,7 @@ def render_job(db: JobsDB, job_id: int) -> bytes | None:
 
     resume_link = ""
     if job["tailored_resume_path"] and Path(job["tailored_resume_path"]).exists():
-        resume_link = f'<a class="btn secondary" href="/resume/{job_id}" target="_blank">Open tailored resume (PDF)</a>'
+        resume_link = f'<a class="btn secondary" href="{BASE_PATH}/resume/{job_id}" target="_blank">Open tailored resume (PDF)</a>'
 
     applied = job["status"] == "applied"
     apply_btn_label = "Marked applied" if applied else "Mark as applied"
@@ -170,7 +179,7 @@ def render_job(db: JobsDB, job_id: int) -> bytes | None:
         qa_html = f'<div class="card"><h3>Predicted screening Q&amp;A</h3><dl class="qa">{items}</dl></div>'
 
     body = f"""
-    <a class="backlink" href="/">&larr; back to dashboard</a>
+    <a class="backlink" href="{BASE_PATH}/">&larr; back to dashboard</a>
     <div class="card">
       <h1>{html.escape(job['title'])}</h1>
       <div class="sub">{html.escape(job['company'] or '')} &middot; {html.escape(job['portal'] or '')}
@@ -186,7 +195,7 @@ def render_job(db: JobsDB, job_id: int) -> bytes | None:
     {qa_html}
     <script>
       function markApplied(id, btn) {{
-        fetch('/api/mark-applied/' + id, {{method: 'POST'}}).then(() => {{
+        fetch('{BASE_PATH}/api/mark-applied/' + id, {{method: 'POST'}}).then(() => {{
           btn.textContent = 'Marked applied';
           btn.className = 'btn applied';
         }});
