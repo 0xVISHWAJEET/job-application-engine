@@ -89,6 +89,15 @@ def render_index(db: JobsDB) -> bytes:
     for j in jobs:
         score_cls = _score_class(j["match_score"])
         status_cls = f"status-{j['status']}" if j["status"] else ""
+
+        has_resume = bool(j["tailored_resume_path"]) and Path(j["tailored_resume_path"]).exists()
+        resume_cell = (
+            f'<a href="{BASE_PATH}/resume/{j["id"]}" target="_blank">PDF</a>' if has_resume else
+            '<span style="color:#666">pending</span>'
+        )
+        qa_count = len(db.get_questions(j["id"]))
+        qa_cell = f'{qa_count}' if qa_count else '<span style="color:#666">pending</span>'
+
         rows.append(f"""
         <tr data-portal="{html.escape(j['portal'] or '')}" data-role="{html.escape(j['role_category'] or '')}">
           <td class="score {score_cls}">{j['match_score']:.2f}</td>
@@ -96,8 +105,10 @@ def render_index(db: JobsDB) -> bytes:
           <td>{html.escape(j['company'] or '')}</td>
           <td><span class="badge">{html.escape(j['portal'] or '')}</span></td>
           <td><span class="badge">{html.escape(j['role_category'] or '')}</span></td>
-          <td>{html.escape(j['location'] or '')}</td>
           <td>{html.escape(j['posted_date'] or '')}</td>
+          <td>{resume_cell}</td>
+          <td>{qa_cell}</td>
+          <td><a href="{html.escape(j['apply_url'])}" target="_blank">Apply</a></td>
           <td class="{status_cls}">{html.escape(j['status'] or '')}</td>
         </tr>""")
 
@@ -109,7 +120,8 @@ def render_index(db: JobsDB) -> bytes:
     body = f"""
     <h1>Job Application Dashboard</h1>
     <div class="sub">{len(jobs)} qualifying jobs (score &ge; {MIN_SCORE:.2f}). Click a title for the full match
-      reasoning, tailored resume, and predicted Q&amp;A.</div>
+      reasoning; "pending" in Resume/Q&amp;A means the background pipeline hasn't reached that job yet
+      (it processes jobs sequentially and can take a while for a large batch) - refresh this page later.</div>
     <div class="filters">
       <input id="q" placeholder="Search title/company..." oninput="filterRows()">
       <select id="portalFilter" onchange="filterRows()"><option value="">All portals</option>{portal_opts}</select>
@@ -118,7 +130,7 @@ def render_index(db: JobsDB) -> bytes:
     <table id="jobsTable">
       <thead><tr>
         <th onclick="sortBy(0)">Score</th><th onclick="sortBy(1)">Title</th><th onclick="sortBy(2)">Company</th>
-        <th>Portal</th><th>Role</th><th>Location</th><th onclick="sortBy(6)">Posted</th><th>Status</th>
+        <th>Portal</th><th>Role</th><th onclick="sortBy(5)">Posted</th><th>Resume</th><th>Q&amp;A</th><th>Apply</th><th>Status</th>
       </tr></thead>
       <tbody>{''.join(rows)}</tbody>
     </table>
