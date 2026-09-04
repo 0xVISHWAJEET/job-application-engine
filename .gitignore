@@ -9,6 +9,9 @@ profile/candidate_profile.json
 jobs/jobs.db
 jobs/outputs/
 vault/answers.db
+vishwajeet.*
+resume/*.aux
+resume/*.log
 
 # Python
 __pycache__/
