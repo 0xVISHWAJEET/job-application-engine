@@ -1,5 +1,7 @@
-# Only needed for scripts/mcp_server.py (MCP protocol) and
-# scripts/discover_jobs.py (HTML/RSS parsing) - match_score.py, tailor_cv.py,
-# and vault.py are dependency-free (stdlib only).
+# Only needed for scripts/mcp_server.py (MCP protocol), scripts/discover_jobs.py
+# (HTML/RSS parsing), and scripts/setup_profile.py (PDF resume text extraction) -
+# match_score.py, tailor_cv.py, cover_letter.py, and vault.py are dependency-free
+# (stdlib only).
 mcp==2.0.0
 beautifulsoup4==4.15.0
+pypdf==6.21.3

@@ -2,17 +2,33 @@
 .env
 *.env
 
-# Personal data - this repo is code/tooling only; the candidate's real
-# profile, generated resumes, application DB, and saved Q&A answers stay
-# local (see README for the schema each of these follows)
+# Personal data - this repo is code/tooling only; your real profile,
+# generated base resume, tailored resumes/cover letters, application DB,
+# and saved Q&A answers stay local (see README for the schema each of
+# these follows, and profile/candidate_profile.example.json for a sample)
 profile/candidate_profile.json
+profile/base_resume.tex
+profile/base_resume.pdf
+profile/*.aux
+profile/*.log
 jobs/jobs.db
 jobs/outputs/
 vault/answers.db
-vishwajeet.*
 resume/*.aux
 resume/*.log
+
+# Vendored Node/Bun subsystems (scripts/setup_career_ops.sh re-installs
+# career-ops's deps; freehire-search has none to install) - node_modules/
+# data caches are large and reproducible; portals.yml (your tuned target-role
+# config) is personal too, so it stays local like candidate_profile.json
+vendor/career-ops/node_modules/
+vendor/career-ops/portals.yml
+vendor/career-ops/data/cache/
+vendor/career-ops/output/
+vendor/career-ops/reports/
+vendor/career-ops/jds/
 
 # Python
 __pycache__/
 *.pyc
+.venv/

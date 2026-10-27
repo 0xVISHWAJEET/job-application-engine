@@ -1,26 +1,31 @@
 #!/usr/bin/env bash
-# Compiles a resume .tex file to PDF using TinyTeX (already installed at
-# ~/.TinyTeX, not on PATH by default). Run twice - the resume template uses
+# Compiles a resume .tex file to PDF via pdflatex (TeX Live, or TinyTeX -
+# https://yihui.org/tinytex/ - a lightweight installer if you don't already
+# have a LaTeX distro). Run twice - the resume template uses
 # \pageref{LastPage} in its footer, which needs a second pass to resolve
 # once the .aux file exists.
 #
 # Usage:
-#   ./compile.sh                                  # compiles ../../vishwajeet.tex -> ../../vishwajeet.pdf
+#   ./compile.sh                                  # compiles ../profile/base_resume.tex
 #   ./compile.sh /path/to/tailored_acme.tex        # compiles a specific file, PDF alongside it
 set -euo pipefail
 
-# Absolute path, not $HOME-relative: this script also runs inside Docker
-# (tailor_cv.py needs beautifulsoup4, which isn't installed on the host -
-# see discover_jobs.py/backfill_tailor.py's docker run invocations), where
-# the process runs as root and $HOME resolves to /root, not
-# /home/aspirez - silently pointing at a pdflatex that was never there.
-PDFLATEX="/home/aspirez/.TinyTeX/bin/x86_64-linux/pdflatex"
-if [ ! -x "$PDFLATEX" ]; then
-    echo "pdflatex not found at $PDFLATEX - is TinyTeX installed? (if running in Docker, is /home/aspirez/.TinyTeX mounted?)" >&2
+PDFLATEX="$(command -v pdflatex || true)"
+if [ -z "$PDFLATEX" ]; then
+    # Common TinyTeX install location, in case it's not on PATH yet.
+    for candidate in "$HOME/.TinyTeX/bin/"*/pdflatex; do
+        if [ -x "$candidate" ]; then
+            PDFLATEX="$candidate"
+            break
+        fi
+    done
+fi
+if [ -z "$PDFLATEX" ] || [ ! -x "$PDFLATEX" ]; then
+    echo "pdflatex not found on PATH or at ~/.TinyTeX - install TeX Live (apt install texlive-latex-extra) or TinyTeX (https://yihui.org/tinytex/)." >&2
     exit 1
 fi
 
-TEX_FILE="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/vishwajeet.tex}"
+TEX_FILE="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/profile/base_resume.tex}"
 
 if [ ! -f "$TEX_FILE" ]; then
     echo "No such file: $TEX_FILE" >&2

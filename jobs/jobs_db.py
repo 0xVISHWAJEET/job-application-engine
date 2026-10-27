@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     match_score REAL,
     match_reasoning TEXT,
     tailored_resume_path TEXT,
+    cover_letter_path TEXT,
     discovered_at TEXT DEFAULT CURRENT_TIMESTAMP,
     status TEXT DEFAULT 'discovered'   -- discovered / scored / tailored / skipped_low_score / applied
 );
@@ -45,6 +46,13 @@ class JobsDB:
         self.conn = sqlite3.connect(db_path)
         self.conn.executescript(SCHEMA)
         self.conn.commit()
+        # Migration for jobs.db files created before cover_letter_path existed -
+        # CREATE TABLE IF NOT EXISTS above doesn't add columns to an existing table.
+        try:
+            self.conn.execute("ALTER TABLE jobs ADD COLUMN cover_letter_path TEXT")
+            self.conn.commit()
+        except sqlite3.OperationalError:
+            pass  # column already exists
 
     def add_or_update(self, **fields) -> int:
         """Insert a job, or update it in place if apply_url already exists (re-running discovery is idempotent)."""

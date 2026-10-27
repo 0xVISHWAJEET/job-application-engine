@@ -1,0 +1,87 @@
+{
+  "profile": {
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "email": "jane.doe@example.com",
+    "phone": "+1-555-0100",
+    "location": "Austin, TX",
+    "open_to_remote": true,
+    "linkedin": "linkedin.com/in/janedoe",
+    "github": "github.com/janedoe",
+    "headline": "Senior Backend Engineer specializing in distributed systems, Go, and Python",
+    "years_experience_total": 6
+  },
+  "preferences": {
+    "target_roles": [
+      "Senior Backend Engineer",
+      "Backend Engineer",
+      "Distributed Systems Engineer",
+      "Lead Software Engineer"
+    ],
+    "job_types": [
+      "Full-Time",
+      "Contract",
+      "Remote"
+    ],
+    "min_match_score": 0.75,
+    "target_platforms": [
+      "LinkedIn",
+      "Direct company career pages"
+    ]
+  },
+  "vault_memory_seed": {
+    "work_authorization": "US Work Authorization",
+    "requires_sponsorship": null,
+    "willing_to_relocate": null,
+    "notice_period_days": null
+  },
+  "skills": {
+    "languages": [
+      "Go",
+      "Python"
+    ],
+    "frameworks_tools": [
+      "Django",
+      "Kubernetes"
+    ],
+    "architecture_domains": [
+      "Distributed Systems",
+      "Microservices",
+      "API Development",
+      "Rate Limiting"
+    ]
+  },
+  "experience": [
+    {
+      "company": "Acme Corp",
+      "position": "Senior Backend Engineer",
+      "start_date": "2021-03",
+      "end_date": "present",
+      "location": "Remote",
+      "highlights": [
+        "Led migration of monolith to microservices on Kubernetes, reducing deploy time from 2h to 8min",
+        "Built internal rate-limiting service handling 50k req/s in Go"
+      ]
+    },
+    {
+      "company": "Globex Inc",
+      "position": "Backend Engineer",
+      "start_date": "2018-06",
+      "end_date": "2021-02",
+      "location": "Austin, TX",
+      "highlights": [
+        "Built payments API in Python/Django processing $2M/month"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of Texas at Austin",
+      "degree": "B.S. Computer Science",
+      "start_date": "2014-08",
+      "end_date": "2018-05",
+      "details": null
+    }
+  ],
+  "summary_template": "Jane Doe is a Senior Backend Engineer with 6 years of experience specializing in distributed systems using Go and Python. Currently at Acme Corp, she led a monolith-to-microservices migration on Kubernetes that reduced deploy time from 2 hours to 8 minutes and built a high-throughput rate-limiting service in Go handling 50k req/s. Previously at Globex Inc, she developed a Python/Django payments API processing $2M monthly. She holds a B.S. in Computer Science from the University of Texas at Austin."
+}

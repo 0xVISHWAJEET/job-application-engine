@@ -38,6 +38,10 @@ from match_score import score as score_job  # noqa: E402
 from tailor_cv import tailor as tailor_resume  # noqa: E402
 from ats_boards import discover_all_ats_boards  # noqa: E402
 from generate_qa import generate_qa_for_job, write_qa_markdown  # noqa: E402
+from career_ops_bridge import discover_via_career_ops  # noqa: E402
+from freehire_bridge import discover_via_freehire  # noqa: E402
+from cover_letter import write_cover_letter  # noqa: E402
+from posting_guard import guard as guard_posting  # noqa: E402
 
 MAX_AGE_DAYS = 30
 MIN_SCORE = 0.80
@@ -660,6 +664,10 @@ def main():
     print(f"  + LinkedIn: {len(all_listings)} so far")
     all_listings += discover_all_ats_boards(_classify_role, MAX_AGE_DAYS)
     print(f"  + ATS boards (Greenhouse/Lever/Ashby): {len(all_listings)} total")
+    all_listings += discover_via_career_ops(_classify_role, MAX_AGE_DAYS)
+    print(f"  + career-ops reverse ATS scan (Greenhouse/Lever/Ashby/Workday/iCIMS/BambooHR/Paylocity/join.com directories): {len(all_listings)} total")
+    all_listings += discover_via_freehire(_classify_role, MAX_AGE_DAYS)
+    print(f"  + freehire.me aggregator (~50 ATS platforms, many countries): {len(all_listings)} total")
 
     print(f"\nScoring {len(all_listings)} listings (min score {MIN_SCORE})...")
     qualifying = 0
@@ -671,7 +679,8 @@ def main():
         # description from the search page - fetch the individual posting
         # for those before scoring.
         if (listing["portal"] in ("LinkedIn", "Dice", "Wellfound", "GitJobs", "JustJoinIT")
-                or listing["portal"].startswith("BuiltIn")) and not description.strip():
+                or listing["portal"].startswith("BuiltIn")
+                or listing["portal"].startswith("CareerOps:")) and not description.strip():
             try:
                 html = _fetch(listing["apply_url"])
                 soup = BeautifulSoup(html, "html.parser")
@@ -703,6 +712,17 @@ def main():
                     description = soup.get_text(separator="\n", strip=True)[:8000]
             except Exception:
                 pass
+
+        # Integrity gate: strip hidden HTML/invisible-Unicode/instruction-shaped
+        # content from third-party posting text before it reaches any LLM
+        # prompt (scoring, tailoring, cover letter, Q&A all build on this
+        # cleaned description). See scripts/posting_guard.py's docstring.
+        try:
+            description, guard_findings = guard_posting(description, "auto")
+            if guard_findings["verdict"].startswith("⚠"):
+                print(f"  ⚠ posting_guard flagged {listing['title']} @ {listing['company']}: {guard_findings['verdict']}", file=sys.stderr)
+        except Exception:
+            pass  # guard failures shouldn't block discovery - worst case, unscrubbed text proceeds as before this gate existed
 
         try:
             result = score_job(description, profile)
@@ -742,6 +762,18 @@ def main():
                     print(f"    Q&A ({len(qa_pairs)}): {qa_path}")
                 except Exception as exc:
                     print(f"    (Q&A generation failed: {exc})", file=sys.stderr)
+                try:
+                    cl_path = write_cover_letter(listing["company"] or listing["portal"], listing["title"], description)
+                    db.add_or_update(
+                        portal=listing["portal"], title=listing["title"], company=listing["company"],
+                        role_category=listing["role_category"], location=listing["location"],
+                        apply_url=listing["apply_url"], posted_date=listing["posted_date"],
+                        match_score=result["score"], match_reasoning=result["reasoning"],
+                        tailored_resume_path=str(pdf_path), cover_letter_path=str(cl_path), status="tailored",
+                    )
+                    print(f"    Cover letter: {cl_path}")
+                except Exception as exc:
+                    print(f"    (cover letter generation failed: {exc})", file=sys.stderr)
             except Exception as exc:
                 print(f"    (tailoring failed: {exc})", file=sys.stderr)
 

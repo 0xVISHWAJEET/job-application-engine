@@ -2,8 +2,10 @@
 Tailors the resume's professional summary and experience bullets to a
 specific job description - reordering/selecting/lightly rewording bullets
 that already exist in candidate_profile.json, never inventing new claims,
-companies, or metrics. Reuses vishwajeet.tex's own LaTeX macros/styling, so
-the output looks identical to the base resume, just re-emphasized.
+companies, or metrics. Reuses the base resume's own LaTeX macros/styling
+(profile/base_resume.tex, rendered by render_base_resume.py from your
+candidate_profile.json - see setup_profile.py), so the output looks
+identical to the base resume, just re-emphasized.
 
 Usage:
     python3 tailor_cv.py "Acme Corp" "Senior Blockchain Engineer" path/to/jd.txt
@@ -22,7 +24,7 @@ from gemini_client import GeminiError, generate
 
 ROOT = Path(__file__).parent.parent
 PROFILE_PATH = ROOT / "profile" / "candidate_profile.json"
-BASE_TEX_PATH = Path("/home/aspirez/2026/vishwajeet.tex")
+BASE_TEX_PATH = ROOT / "profile" / "base_resume.tex"
 OUTPUT_DIR = ROOT / "jobs" / "outputs"
 COMPILE_SCRIPT = ROOT / "resume" / "compile.sh"
 
@@ -88,6 +90,12 @@ def _render_experience_section(experience: list[dict]) -> str:
 
 def tailor(company: str, role: str, job_description: str) -> Path:
     profile = json.loads(PROFILE_PATH.read_text())
+    if not BASE_TEX_PATH.exists():
+        raise FileNotFoundError(
+            f"{BASE_TEX_PATH} doesn't exist yet - run "
+            "`python3 scripts/setup_profile.py path/to/your_resume.pdf` first "
+            "(it generates both candidate_profile.json and base_resume.tex)."
+        )
     base_tex = BASE_TEX_PATH.read_text()
 
     tailored = _ask_gemini_to_tailor(job_description, profile)

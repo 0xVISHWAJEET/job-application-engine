@@ -1,0 +1,118 @@
+\documentclass[letterpaper,10pt]{article}
+
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{fontawesome5}
+\usepackage{bookmark}
+\usepackage{lastpage}
+\usepackage{ragged2e}
+\usepackage{charter} % Type-1 outline font - avoids Computer Modern's
+                      % bitmap-font generation, which needs mktexpk/metafont
+                      % and fails on a minimal TeX install without them
+\usepackage{xcolor}
+\definecolor{accentTitle}{HTML}{1a4d8f}
+\definecolor{accentText}{HTML}{1a4d8f}
+\definecolor{accentLine}{HTML}{555555}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\urlstyle{same}
+
+\addtolength{\oddsidemargin}{-0.7in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.19in}
+\addtolength{\topmargin}{-0.85in}
+\addtolength{\textheight}{1.75in}
+
+\setlength{\tabcolsep}{0pt}
+\setlength{\footskip}{3.7pt}
+\raggedbottom
+\raggedright
+
+%% ── Layout commands ──────────────────────────────────────────────────────────
+
+\newcommand{\documentTitle}[2]{
+  \begin{center}
+    {\Huge\color{accentTitle} #1}
+    \vspace{1pt}
+    {\color{accentLine} \hrule}
+    \vspace{1pt}
+    \footnotesize{#2}
+    \vspace{1pt}
+    {\color{accentLine} \hrule}
+  \end{center}
+}
+
+\newcommand{\documentFooter}[1]{
+  \setlength{\footskip}{10.25pt}
+  \fancyfoot[C]{\footnotesize #1}
+}
+
+\newcommand{\numberedPages}{
+  \documentFooter{\thepage/\pageref{LastPage}}
+}
+
+\titleformat{\section}{
+  \vspace{-1pt}
+  \color{accentText}
+  \raggedright\large\bfseries
+}{}{0em}{}[\color{accentLine}\titlerule]
+
+\newcommand{\heading}[2]{
+  \hspace{10pt}#1\hfill#2\\
+}
+
+\newcommand{\headingBf}[2]{
+  \heading{\textbf{#1}}{\textbf{#2}}
+}
+
+\newcommand{\headingIt}[2]{
+  \heading{\textit{#1}}{\textit{#2}}
+}
+
+\newenvironment{resume_list}{
+  \vspace{-2pt}
+  \begin{itemize}[itemsep=-2px, parsep=1pt, leftmargin=30pt]
+}{
+  \end{itemize}
+}
+
+\renewcommand\labelitemi{--}
+
+%% ── Document ─────────────────────────────────────────────────────────────────
+
+\begin{document}
+\numberedPages
+
+%% ── Title & Contact ──────────────────────────────────────────────────────────
+\documentTitle{ {{FULL_NAME}} {\small\color{black}\textmd{$\cdot$ {{HEADLINE}} }} }{
+  {{CONTACT_LINE}}
+}
+
+%% ── Professional Summary ─────────────────────────────────────────────────────
+
+  \small
+  {{SUMMARY}}
+
+%% ── Skills
+\section{Technical Skills}
+\begin{itemize}[itemsep=-2pt, parsep=1pt, leftmargin=12pt, label={}]
+{{SKILLS_ITEMS}}
+\end{itemize}
+
+%% ── Experience
+\section{Experience}
+
+{{EXPERIENCE_SECTION}}
+
+%% ── Education
+\section{Education}
+{{EDUCATION_SECTION}}
+
+\end{document}
