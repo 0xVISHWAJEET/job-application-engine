@@ -29,7 +29,7 @@ import json  # noqa: E402
 
 PROFILE_PATH = Path(__file__).parent.parent / "profile" / "candidate_profile.json"
 
-mcp = MCPServer("job-application-engine")
+mcp = MCPServer("job-search")
 
 
 @mcp.tool()

@@ -302,7 +302,7 @@ def render_index(db: JobsDB) -> bytes:
     """
 
     body = f"""
-    <div class="eyebrow"><span class="dot"></span>job-application-engine</div>
+    <div class="eyebrow"><span class="dot"></span>job-search</div>
     <h1 class="title">Pipeline Console</h1>
     <div class="sub">{len(jobs)} qualifying jobs, score &ge; {MIN_SCORE:.2f}, posted within 30 days. "Queued" in
       Resume/Q&amp;A means the background pipeline hasn't reached that job yet - it processes sequentially,

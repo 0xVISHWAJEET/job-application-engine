@@ -1,4 +1,4 @@
-# Job Application Engine
+# job-search
 
 A complete, self-hosted job-search pipeline: give it your resume, and it
 discovers openings across ~180 real sources worldwide, scores each one
@@ -15,8 +15,8 @@ bot-detection bypass anywhere - see
 ## Quickstart
 
 ```bash
-git clone https://github.com/0xVISHWAJEET/job-application-engine.git
-cd job-application-engine
+git clone https://github.com/0xVISHWAJEET/job-search.git
+cd job-search
 
 # 1. Python deps (a venv keeps this isolated from system Python)
 python3 -m venv .venv && source .venv/bin/activate
@@ -65,7 +65,7 @@ letters, Q&A) works without it - only the compiled PDF step needs it.
 ## What's here
 
 ```
-job-application-engine/
+job-search/
 ├── resume/
 │   ├── compile.sh                 # compiles any .tex to PDF via pdflatex
 │   └── templates/
