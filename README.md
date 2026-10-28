@@ -18,7 +18,10 @@ bot-detection bypass anywhere - see
 git clone https://github.com/0xVISHWAJEET/job-search.git
 cd job-search
 
-# 1. Python deps (a venv keeps this isolated from system Python)
+# 1. Python deps (a venv keeps this isolated from system Python).
+#    If `python3 -m venv` fails with "No module named venv" (common on a
+#    stock Debian/Ubuntu install), either `sudo apt install python3-venv`
+#    or use uv instead: `uv venv .venv && source .venv/bin/activate`
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
