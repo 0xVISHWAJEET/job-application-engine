@@ -30,7 +30,14 @@ CLI_DIR = Path(__file__).parent.parent / "vendor" / "ai-job-search" / "freehire-
 # file; this default stays broad and tech-general as a fallback.
 DEFAULT_QUERIES = ["devops", "site reliability", "platform engineer", "blockchain", "ai engineer", "security engineer"]
 
-DEFAULT_LIMIT = 50
+# 25, not freehire-search's own default of 25/CLI max of 50+ - empirically,
+# requesting 50 full-description results in one call reliably truncates
+# Python subprocess.run's captured stdout well before the JSON closes
+# (reproduced directly, independent of network conditions: content-length-
+# dependent, not a timeout or connectivity issue). 25 was stable across
+# repeated runs; this trades fewer results per query for actually getting
+# valid JSON back every time.
+DEFAULT_LIMIT = 25
 
 
 def _bun_path() -> str:
@@ -62,19 +69,32 @@ def _run_search(query: str, jobage_days: int, limit: int) -> list[dict]:
         "--limit", str(limit),
         "--format", "json",
     ]
-    proc = subprocess.run(cmd, cwd=CLI_DIR, capture_output=True, text=True, timeout=60)
-    if proc.returncode != 0:
-        # The CLI writes {"error": "...", "code": "..."} to stderr on failure
-        # (e.g. freehire.me unreachable) - degrade gracefully, same posture
-        # the CLI itself documents.
-        raise RuntimeError(f"freehire-search query {query!r} failed: {proc.stderr.strip()[:300]}")
+    # One retry on a transient failure - a one-off run against the live CLI
+    # showed occasional truncated JSON (likely a dropped connection to
+    # freehire.me mid-response under back-to-back query load, not a
+    # reproducible content bug: the same query succeeded cleanly on retry).
+    last_exc = None
+    for attempt in range(2):
+        try:
+            proc = subprocess.run(cmd, cwd=CLI_DIR, capture_output=True, text=True, timeout=90)
+        except subprocess.TimeoutExpired as exc:
+            last_exc = RuntimeError(f"freehire-search query {query!r} timed out: {exc}")
+            continue
 
-    try:
-        data = json.loads(proc.stdout)
-    except (json.JSONDecodeError, ValueError) as exc:
-        raise RuntimeError(f"freehire-search returned non-JSON output: {exc}") from exc
+        if proc.returncode != 0:
+            # The CLI writes {"error": "...", "code": "..."} to stderr on failure
+            # (e.g. freehire.me unreachable) - degrade gracefully, same posture
+            # the CLI itself documents.
+            last_exc = RuntimeError(f"freehire-search query {query!r} failed: {proc.stderr.strip()[:300]}")
+            continue
 
-    return data.get("results", [])
+        try:
+            return json.loads(proc.stdout).get("results", [])
+        except (json.JSONDecodeError, ValueError) as exc:
+            last_exc = RuntimeError(f"freehire-search returned non-JSON output: {exc}")
+            continue
+
+    raise last_exc
 
 
 def discover_via_freehire(
