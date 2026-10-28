@@ -672,7 +672,18 @@ def main():
     print(f"\nScoring {len(all_listings)} listings (min score {MIN_SCORE})...")
     qualifying = 0
 
+    already_scored = 0
     for listing in all_listings:
+        # Re-running discovery (e.g. after an interrupted run, or a quota
+        # reset) shouldn't re-spend LLM calls on a listing already scored
+        # today - same apply_url, already has a score, discovered recently.
+        # A listing that previously failed to score (no match_score) is NOT
+        # skipped - it gets a real retry.
+        existing = db.get_by_apply_url(listing["apply_url"])
+        if existing and existing["match_score"] is not None:
+            already_scored += 1
+            continue
+
         description = listing.get("description") or listing["title"]
 
         # LinkedIn/Dice/Wellfound/BuiltIn/GitJobs listings didn't carry a
@@ -777,7 +788,8 @@ def main():
             except Exception as exc:
                 print(f"    (tailoring failed: {exc})", file=sys.stderr)
 
-    print(f"\nDone. {qualifying} qualifying jobs (>= {MIN_SCORE}) out of {len(all_listings)} scored.")
+    print(f"\nDone. {qualifying} qualifying jobs (>= {MIN_SCORE}) out of {len(all_listings)} scored "
+          f"({already_scored} skipped - already scored in a prior run).")
     print(json.dumps(db.summary(), indent=2))
 
 
