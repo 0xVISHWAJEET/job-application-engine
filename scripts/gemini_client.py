@@ -26,7 +26,8 @@ API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/{mod
 # project behind either key would remove all of this, but the user
 # explicitly chose to keep using the free tier.
 MODEL_CHAIN = [
-    os.getenv("GEMINI_MODEL") or "gemini-3.5-flash",
+    os.getenv("GEMINI_MODEL") or "gemini-3.5-flash-lite",
+    "gemini-3.5-flash",
     "gemini-3-flash-preview",
     "gemini-3.1-flash-lite-preview",
     "gemini-3.1-flash-lite",
