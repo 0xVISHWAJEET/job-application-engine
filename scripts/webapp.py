@@ -268,6 +268,11 @@ def render_index(db: JobsDB) -> bytes:
             f'<a href="{BASE_PATH}/resume/{j["id"]}" target="_blank"><span class="dot ready"></span>PDF</a>' if has_resume else
             '<span class="muted"><span class="dot queued"></span>queued</span>'
         )
+        has_cover_letter = bool(j["cover_letter_path"]) and Path(j["cover_letter_path"]).exists()
+        cover_letter_cell = (
+            f'<a href="{BASE_PATH}/cover-letter/{j["id"]}" target="_blank"><span class="dot ready"></span>Text</a>' if has_cover_letter else
+            '<span class="muted"><span class="dot queued"></span>queued</span>'
+        )
         qa_count = len(db.get_questions(j["id"]))
         qa_cell = (
             f'<span class="dot ready"></span>{qa_count}' if qa_count else
@@ -283,6 +288,7 @@ def render_index(db: JobsDB) -> bytes:
           <td><span class="badge">{html.escape(j['role_category'] or '')}</span></td>
           <td class="mono">{html.escape(j['posted_date'] or '—')}</td>
           <td>{resume_cell}</td>
+          <td>{cover_letter_cell}</td>
           <td>{qa_cell}</td>
           <td><a href="{html.escape(j['apply_url'])}" target="_blank">Apply &rarr;</a></td>
           <td class="{status_cls}">{html.escape(j['status'] or '')}</td>
@@ -317,7 +323,7 @@ def render_index(db: JobsDB) -> bytes:
     <table id="jobsTable">
       <thead><tr>
         <th onclick="sortBy(0)">Score</th><th onclick="sortBy(1)">Title</th><th onclick="sortBy(2)">Company</th>
-        <th>Portal</th><th>Role</th><th onclick="sortBy(5)">Posted</th><th>Resume</th><th>Q&amp;A</th><th>Apply</th><th>Status</th>
+        <th>Portal</th><th>Role</th><th onclick="sortBy(5)">Posted</th><th>Resume</th><th>Cover Letter</th><th>Q&amp;A</th><th>Apply</th><th>Status</th>
       </tr></thead>
       <tbody>{''.join(rows)}</tbody>
     </table>
@@ -364,6 +370,15 @@ def render_job(db: JobsDB, job_id: int) -> bytes | None:
     if job["tailored_resume_path"] and Path(job["tailored_resume_path"]).exists():
         resume_link = f'<a class="btn secondary" href="{BASE_PATH}/resume/{job_id}" target="_blank">Open tailored resume (PDF)</a>'
 
+    cover_letter_html = ""
+    if job.get("cover_letter_path") and Path(job["cover_letter_path"]).exists():
+        cover_letter_text = Path(job["cover_letter_path"]).read_text()
+        cover_letter_html = (
+            f'<div class="card"><h3 style="font-family:var(--font-display); margin-top:0">Cover letter (draft - review before sending)</h3>'
+            f'<pre style="white-space:pre-wrap; font-family:inherit">{html.escape(cover_letter_text)}</pre>'
+            f'<a class="btn secondary" href="{BASE_PATH}/cover-letter/{job_id}" target="_blank">Open as text</a></div>'
+        )
+
     applied = job["status"] == "applied"
     apply_btn_label = "Marked applied" if applied else "Mark as applied"
     apply_btn_cls = "btn applied" if applied else "btn secondary"
@@ -397,6 +412,7 @@ def render_job(db: JobsDB, job_id: int) -> bytes | None:
         <button class="{apply_btn_cls}" onclick="markApplied({job_id}, this)">{apply_btn_label}</button>
       </div>
     </div>
+    {cover_letter_html}
     {qa_html}
     <script>
       function markApplied(id, btn) {{
@@ -442,6 +458,15 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, path.read_bytes(), "application/pdf")
             else:
                 self._send(404, b"No resume on file for this job", "text/plain")
+        elif parts[0] == "cover-letter" and len(parts) == 2 and parts[1].isdigit():
+            r = db.conn.execute(
+                "SELECT cover_letter_path FROM jobs WHERE id = ?", (int(parts[1]),)
+            ).fetchone()
+            path = Path(r[0]) if r and r[0] else None
+            if path and path.exists():
+                self._send(200, path.read_bytes(), "text/plain; charset=utf-8")
+            else:
+                self._send(404, b"No cover letter on file for this job", "text/plain")
         else:
             self._send(404, b"Not found", "text/plain")
 
